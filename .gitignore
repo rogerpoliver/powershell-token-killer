@@ -1,0 +1,32 @@
+# Binary
+ptk
+ptk.exe
+*.exe
+*.test
+*.out
+*.prof
+
+# Build artifacts
+dist/
+release/
+
+# Go
+vendor/
+coverage.out
+coverage.html
+
+# Environment
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PTK runtime
+tracking.db
