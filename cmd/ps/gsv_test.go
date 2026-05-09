@@ -24,7 +24,7 @@ Running  DiagTrack          Connected User Experiences and Telemetry
 `
 
 func TestFilterGSV_basic(t *testing.T) {
-	out := filterGSV(rawGSV)
+	out := FilterGSV(rawGSV)
 	if strings.Contains(out, "------") {
 		t.Error("separator line should be stripped")
 	}
@@ -40,7 +40,7 @@ func TestFilterGSV_basic(t *testing.T) {
 }
 
 func TestFilterGSV_strips_header(t *testing.T) {
-	out := filterGSV(rawGSV)
+	out := FilterGSV(rawGSV)
 	for _, line := range strings.Split(out, "\n") {
 		if strings.TrimSpace(line) == "" {
 			continue
@@ -56,21 +56,21 @@ func TestFilterGSV_truncates_display_name(t *testing.T) {
 ------   ----    -----------
 Running  svc1    This is a very long display name that exceeds the forty character limit significantly
 `
-	out := filterGSV(raw)
+	out := FilterGSV(raw)
 	if !strings.Contains(out, "...") {
 		t.Errorf("long display name should be truncated with ..., got:\n%s", out)
 	}
 }
 
 func TestFilterGSV_empty(t *testing.T) {
-	out := filterGSV("")
+	out := FilterGSV("")
 	if out != "(no services)\n" {
 		t.Errorf("expected (no services)\\n, got %q", out)
 	}
 }
 
 func TestFilterGSV_token_savings(t *testing.T) {
-	out := filterGSV(rawGSV)
+	out := FilterGSV(rawGSV)
 	inTok := countTokens(rawGSV)
 	outTok := countTokens(out)
 	savings := (1 - float64(outTok)/float64(inTok)) * 100

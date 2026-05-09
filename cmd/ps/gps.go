@@ -116,3 +116,24 @@ func fmtCPU(cpu float64) string {
 	}
 	return fmt.Sprintf("%.1fs", cpu)
 }
+
+// GPSResult runs Get-Process and returns compressed output.
+func GPSResult(nameFilter string) (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	cmdlet := "Get-Process"
+	if nameFilter != "" {
+		cmdlet += fmt.Sprintf(" -Name %s", nameFilter)
+	}
+	cmdlet += " | Sort-Object CPU -Descending | Select-Object -First 20 | Select-Object Name,Id,CPU,WorkingSet"
+	raw, err := powershell.InvokePwshJSON(cmdlet)
+	if err != nil {
+		return "(no processes)\n", nil
+	}
+	entries, err := parseGPSJSON(string(raw))
+	if err != nil || len(entries) == 0 {
+		return "(no processes)\n", nil
+	}
+	return formatGPS(entries), nil
+}

@@ -37,7 +37,7 @@ func runHistory(args []string) error {
 		return nil
 	}
 
-	compressed := filterHistory(raw)
+	compressed := FilterHistory(raw)
 	fmt.Print(compressed)
 
 	inTok := tracking.CountTokens(raw)
@@ -46,14 +46,14 @@ func runHistory(args []string) error {
 	return nil
 }
 
-// filterHistory strips the PS table headers and formats as "id  command".
+// FilterHistory strips the PS table headers and formats as "id  command".
 //
 // PS format:
 //   Id CommandLine
 //   -- -----------
 //    1 Get-ChildItem
 //    2 cargo build --release
-func filterHistory(raw string) string {
+func FilterHistory(raw string) string {
 	lines := strings.Split(strings.TrimRight(raw, "\r\n"), "\n")
 	var sb strings.Builder
 	inData := false
@@ -95,4 +95,16 @@ func filterHistory(raw string) string {
 		return "(no history)\n"
 	}
 	return sb.String()
+}
+
+// HistoryResult runs Get-History and returns compressed output.
+func HistoryResult() (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	raw, err := powershell.InvokePwshText("Get-History")
+	if err != nil || strings.TrimSpace(raw) == "" {
+		return "(no history)\n", nil
+	}
+	return FilterHistory(raw), nil
 }

@@ -26,7 +26,7 @@ Property   :
 
 func TestFilterMeasure_drops_nulls(t *testing.T) {
 	requested := map[string]string{"Count": "Lines"}
-	out := filterMeasure(rawMeasureLine, requested)
+	out := FilterMeasure(rawMeasureLine, requested)
 
 	if strings.Contains(out, "Average") {
 		t.Errorf("null Average should be dropped, got:\n%s", out)
@@ -45,7 +45,7 @@ func TestFilterMeasure_friendly_labels(t *testing.T) {
 		"Words":      "Words",
 		"Characters": "Chars",
 	}
-	out := filterMeasure(rawMeasureAllProps, requested)
+	out := FilterMeasure(rawMeasureAllProps, requested)
 
 	if !strings.Contains(out, "Lines: 156") {
 		t.Errorf("expected Lines: 156, got:\n%s", out)
@@ -59,7 +59,7 @@ func TestFilterMeasure_friendly_labels(t *testing.T) {
 }
 
 func TestFilterMeasure_empty_input(t *testing.T) {
-	out := filterMeasure("", map[string]string{})
+	out := FilterMeasure("", map[string]string{})
 	if out != "(no output)\n" {
 		t.Errorf("expected (no output)\\n, got %q", out)
 	}
@@ -71,7 +71,7 @@ Count    :
 Average  :
 Sum      :
 `
-	out := filterMeasure(raw, map[string]string{})
+	out := FilterMeasure(raw, map[string]string{})
 	if out != "(no output)\n" {
 		t.Errorf("all-null props should give (no output)\\n, got %q", out)
 	}
@@ -80,7 +80,7 @@ Sum      :
 func TestFilterMeasure_single_line_output(t *testing.T) {
 	// Output should be compact — all props on one line separated by spaces
 	requested := map[string]string{"Count": "Lines"}
-	out := filterMeasure(rawMeasureLine, requested)
+	out := FilterMeasure(rawMeasureLine, requested)
 	lines := strings.Split(strings.TrimSpace(out), "\n")
 	if len(lines) != 1 {
 		t.Errorf("expected single-line output, got %d lines:\n%s", len(lines), out)
@@ -99,7 +99,7 @@ StandardDeviation :
 Property :
 `
 	requested := map[string]string{"Count": "Lines"}
-	out := filterMeasure(rawFull, requested)
+	out := FilterMeasure(rawFull, requested)
 	inTok := countTokens(rawFull)
 	outTok := countTokens(out)
 	savings := (1 - float64(outTok)/float64(inTok)) * 100

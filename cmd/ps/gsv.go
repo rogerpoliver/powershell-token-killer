@@ -51,7 +51,7 @@ func runGsv(args []string) error {
 		return nil
 	}
 
-	compressed := filterGSV(raw)
+	compressed := FilterGSV(raw)
 	fmt.Print(compressed)
 
 	inTok := tracking.CountTokens(raw)
@@ -60,8 +60,8 @@ func runGsv(args []string) error {
 	return nil
 }
 
-// filterGSV parses tabular Get-Service output and compacts it.
-func filterGSV(raw string) string {
+// FilterGSV parses tabular Get-Service output and compacts it.
+func FilterGSV(raw string) string {
 	lines := strings.Split(strings.TrimRight(raw, "\r\n"), "\n")
 	var sb strings.Builder
 	inData := false
@@ -108,4 +108,23 @@ func filterGSV(raw string) string {
 		return "(no services)\n"
 	}
 	return sb.String()
+}
+
+// GSVResult runs Get-Service and returns compressed output.
+func GSVResult(nameFilter, statusFilter string) (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	cmdlet := "Get-Service"
+	if nameFilter != "" {
+		cmdlet += fmt.Sprintf(" -Name %s", nameFilter)
+	}
+	if statusFilter != "" {
+		cmdlet += fmt.Sprintf(" -Status %s", statusFilter)
+	}
+	raw, err := powershell.InvokePwshText(cmdlet)
+	if err != nil {
+		return "(no services found)\n", nil
+	}
+	return FilterGSV(raw), nil
 }

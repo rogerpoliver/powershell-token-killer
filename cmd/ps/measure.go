@@ -32,7 +32,7 @@ func runMeasure(args []string) error {
 		return nil
 	}
 
-	compressed := filterMeasure(raw, requested)
+	compressed := FilterMeasure(raw, requested)
 	fmt.Print(compressed)
 
 	inTok := tracking.CountTokens(raw)
@@ -68,13 +68,13 @@ func buildMeasureArgs(args []string) (psArgs string, requested map[string]string
 	return strings.Join(parts, " "), requested
 }
 
-// filterMeasure parses Measure-Object output, dropping null properties.
+// FilterMeasure parses Measure-Object output, dropping null properties.
 // Input format:
 //   Count    : 42
 //   Average  :
 //   Sum      :
 //   ...
-func filterMeasure(raw string, requested map[string]string) string {
+func FilterMeasure(raw string, requested map[string]string) string {
 	lines := strings.Split(strings.TrimRight(raw, "\r\n"), "\n")
 	var parts []string
 
@@ -102,4 +102,28 @@ func filterMeasure(raw string, requested map[string]string) string {
 		return "(no output)\n"
 	}
 	return strings.Join(parts, "  ") + "\n"
+}
+
+// MeasureResult runs Measure-Object and returns compressed output.
+func MeasureResult(lines, words, chars bool) (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	var flags []string
+	if lines {
+		flags = append(flags, "-l")
+	}
+	if words {
+		flags = append(flags, "-w")
+	}
+	if chars {
+		flags = append(flags, "-c")
+	}
+	psArgs, requested := buildMeasureArgs(flags)
+	cmdlet := fmt.Sprintf("Measure-Object %s", psArgs)
+	raw, err := powershell.InvokePwshText(cmdlet)
+	if err != nil {
+		return "(measure failed)\n", nil
+	}
+	return FilterMeasure(raw, requested), nil
 }

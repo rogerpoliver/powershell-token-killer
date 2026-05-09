@@ -10,7 +10,7 @@ func TestFilterSLS_single_file(t *testing.T) {
 src/main.go:45:func handleMain(w http.ResponseWriter, r *http.Request) {
 src/main.go:78:// main entry point
 `
-	out := filterSLS(raw)
+	out := FilterSLS(raw)
 	// Should drop "src/main.go:" prefix
 	if strings.Contains(out, "src/main.go:") {
 		t.Errorf("single-file: filename prefix should be stripped, got:\n%s", out)
@@ -25,7 +25,7 @@ func TestFilterSLS_multi_file(t *testing.T) {
 src/server.go:8:func startServer() {
 src/handler.go:34:func handleRequest() {
 `
-	out := filterSLS(raw)
+	out := FilterSLS(raw)
 	// Multiple files — keep filename prefix
 	if !strings.Contains(out, "src/main.go:") {
 		t.Errorf("multi-file: filename should be kept, got:\n%s", out)
@@ -38,7 +38,7 @@ src/handler.go:34:func handleRequest() {
 func TestFilterSLS_truncates_long_lines(t *testing.T) {
 	long := strings.Repeat("x", 130)
 	raw := "file.go:1:" + long + "\n"
-	out := filterSLS(raw)
+	out := FilterSLS(raw)
 	// Should be truncated at 120 chars + "…"
 	for _, line := range strings.Split(out, "\n") {
 		if strings.TrimSpace(line) == "" {
@@ -59,7 +59,7 @@ func TestFilterSLS_summary_when_many(t *testing.T) {
 		lines = append(lines, "file.go:"+strings.Repeat("1", 1)+":match line")
 	}
 	raw := strings.Join(lines, "\n") + "\n"
-	out := filterSLS(raw)
+	out := FilterSLS(raw)
 	if !strings.Contains(out, "Found 8 matches") {
 		t.Errorf("expected summary for >5 matches, got:\n%s", out)
 	}
@@ -70,14 +70,14 @@ func TestFilterSLS_no_summary_few_matches(t *testing.T) {
 file.go:2:match two
 file.go:3:match three
 `
-	out := filterSLS(raw)
+	out := FilterSLS(raw)
 	if strings.Contains(out, "Found") {
 		t.Errorf("should not show summary for ≤5 matches, got:\n%s", out)
 	}
 }
 
 func TestFilterSLS_empty(t *testing.T) {
-	out := filterSLS("")
+	out := FilterSLS("")
 	if out != "(no matches)\n" {
 		t.Errorf("expected (no matches)\\n, got %q", out)
 	}
@@ -95,7 +95,7 @@ func TestFilterSLS_token_savings(t *testing.T) {
 	}
 	raw := strings.Join(lines, "\n") + "\n"
 
-	out := filterSLS(raw)
+	out := FilterSLS(raw)
 	inTok := countTokens(raw)
 	outTok := countTokens(out)
 	savings := (1 - float64(outTok)/float64(inTok)) * 100

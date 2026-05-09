@@ -63,7 +63,7 @@ EXAMPLES
 `
 
 func TestExtractSynopsis_basic(t *testing.T) {
-	out := extractSynopsis(rawGetHelp)
+	out := ExtractSynopsis(rawGetHelp)
 	if !strings.Contains(out, "Gets the items and child items") {
 		t.Errorf("synopsis text should appear, got:\n%s", out)
 	}
@@ -88,14 +88,14 @@ Gets running processes.
 Usage: Get-Process [-Name <string>]
 More details here about parameters and usage.
 `
-	out := extractSynopsis(raw)
+	out := ExtractSynopsis(raw)
 	if strings.TrimSpace(out) == "" {
 		t.Errorf("fallback should return first lines, got empty")
 	}
 }
 
 func TestExtractSynopsisAndExamples_basic(t *testing.T) {
-	out := extractSynopsisAndExamples(rawGetHelp, 2)
+	out := ExtractSynopsisAndExamples(rawGetHelp, 2)
 	if !strings.Contains(out, "Gets the items and child items") {
 		t.Errorf("synopsis should appear, got:\n%s", out)
 	}
@@ -108,7 +108,7 @@ func TestExtractSynopsisAndExamples_basic(t *testing.T) {
 }
 
 func TestExtractSynopsis_token_savings(t *testing.T) {
-	out := extractSynopsis(rawGetHelp)
+	out := ExtractSynopsis(rawGetHelp)
 	inTok := countTokens(rawGetHelp)
 	outTok := countTokens(out)
 	savings := (1 - float64(outTok)/float64(inTok)) * 100
@@ -120,7 +120,7 @@ func TestExtractSynopsis_token_savings(t *testing.T) {
 }
 
 func TestExtractSynopsisAndExamples_token_savings(t *testing.T) {
-	out := extractSynopsisAndExamples(rawGetHelp, 2)
+	out := ExtractSynopsisAndExamples(rawGetHelp, 2)
 	inTok := countTokens(rawGetHelp)
 	outTok := countTokens(out)
 	savings := (1 - float64(outTok)/float64(inTok)) * 100

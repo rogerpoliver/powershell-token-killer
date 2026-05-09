@@ -17,8 +17,29 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Install PTK hooks into Claude Code settings",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInit()
+		claudeFlag, _ := cmd.Flags().GetBool("claude")
+		copilotFlag, _ := cmd.Flags().GetBool("copilot")
+		// Default (no flags): install both
+		if !claudeFlag && !copilotFlag {
+			claudeFlag = true
+		}
+		if claudeFlag {
+			if err := runInit(); err != nil {
+				return err
+			}
+		}
+		if copilotFlag {
+			if err := runCopilotInit(); err != nil {
+				return err
+			}
+		}
+		return nil
 	},
+}
+
+func init() {
+	initCmd.Flags().Bool("claude", false, "Install Claude Code hooks (default when no flags specified)")
+	initCmd.Flags().Bool("copilot", false, "Install GitHub Copilot MCP config and instructions")
 }
 
 func runInit() error {
@@ -200,5 +221,69 @@ func createConfig() error {
 		return nil // already exists
 	}
 	return os.WriteFile(configFile, []byte(config.DefaultTOML()), 0644)
+}
+
+// runCopilotInit installs GitHub Copilot MCP config and instructions.
+// It writes (or merges) .vscode/settings.json with the ptk MCP server entry
+// and writes .github/copilot-instructions.md from the embedded FS.
+func runCopilotInit() error {
+	// 1. Write .vscode/settings.json with MCP server config (merge, don't replace)
+	if err := os.MkdirAll(".vscode", 0755); err != nil {
+		return fmt.Errorf("copilot init: create .vscode: %w", err)
+	}
+	vscodePath := ".vscode/settings.json"
+
+	var vsSettings map[string]interface{}
+	existing, err := os.ReadFile(vscodePath)
+	if err == nil {
+		if jsonErr := json.Unmarshal(existing, &vsSettings); jsonErr != nil {
+			vsSettings = map[string]interface{}{}
+		}
+	} else {
+		vsSettings = map[string]interface{}{}
+	}
+
+	// Merge mcp.servers.ptk into existing settings
+	mcpBlock, _ := vsSettings["mcp"].(map[string]interface{})
+	if mcpBlock == nil {
+		mcpBlock = map[string]interface{}{}
+	}
+	servers, _ := mcpBlock["servers"].(map[string]interface{})
+	if servers == nil {
+		servers = map[string]interface{}{}
+	}
+	servers["ptk"] = map[string]interface{}{
+		"type":    "stdio",
+		"command": "ptk",
+		"args":    []interface{}{"serve", "--mcp"},
+	}
+	mcpBlock["servers"] = servers
+	vsSettings["mcp"] = mcpBlock
+
+	out, err := json.MarshalIndent(vsSettings, "", "  ")
+	if err != nil {
+		return fmt.Errorf("copilot init: marshal settings: %w", err)
+	}
+	if err := os.WriteFile(vscodePath, out, 0644); err != nil {
+		return fmt.Errorf("copilot init: write %s: %w", vscodePath, err)
+	}
+	fmt.Printf("  wrote %s\n", vscodePath)
+
+	// 2. Write .github/copilot-instructions.md from embedded FS
+	if err := os.MkdirAll(".github", 0755); err != nil {
+		return fmt.Errorf("copilot init: create .github: %w", err)
+	}
+	instructionsData, err := fs.ReadFile(embedded.FS, "skills/copilot/copilot-instructions.md")
+	if err != nil {
+		return fmt.Errorf("copilot init: read embedded instructions: %w", err)
+	}
+	instructionsPath := ".github/copilot-instructions.md"
+	if err := os.WriteFile(instructionsPath, instructionsData, 0644); err != nil {
+		return fmt.Errorf("copilot init: write %s: %w", instructionsPath, err)
+	}
+	fmt.Printf("  wrote %s\n", instructionsPath)
+
+	fmt.Println("\nCopilot MCP server configured. Open VS Code to activate.")
+	return nil
 }
 

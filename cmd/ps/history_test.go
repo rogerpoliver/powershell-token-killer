@@ -12,7 +12,7 @@ func TestFilterHistory_basic(t *testing.T) {
    2 cargo build --release
    3 git status
 `
-	out := filterHistory(raw)
+	out := FilterHistory(raw)
 	if !strings.Contains(out, "1  Get-ChildItem") {
 		t.Errorf("expected '1  Get-ChildItem', got:\n%s", out)
 	}
@@ -28,7 +28,7 @@ func TestFilterHistory_basic(t *testing.T) {
 }
 
 func TestFilterHistory_empty(t *testing.T) {
-	out := filterHistory("")
+	out := FilterHistory("")
 	if out != "(no history)\n" {
 		t.Errorf("expected (no history)\\n, got %q", out)
 	}
@@ -43,7 +43,7 @@ func TestFilterHistory_strips_header(t *testing.T) {
    2 cargo build --release
   10 Get-Service | Where-Object Status -eq Running
 `
-	out := filterHistory(raw)
+	out := FilterHistory(raw)
 	// Header and separator must be gone
 	if strings.Contains(out, "CommandLine") || strings.Contains(out, "---") {
 		t.Errorf("header/separator should be stripped, got:\n%s", out)

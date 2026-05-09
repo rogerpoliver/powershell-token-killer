@@ -36,7 +36,7 @@ func runSls(args []string) error {
 		return nil
 	}
 
-	compressed := filterSLS(raw)
+	compressed := FilterSLS(raw)
 	fmt.Print(compressed)
 
 	inTok := tracking.CountTokens(raw)
@@ -69,9 +69,9 @@ func buildSlsArgs(args []string) string {
 	return strings.Join(psArgs, " ")
 }
 
-// filterSLS compresses Select-String output.
+// FilterSLS compresses Select-String output.
 // Format per line: "file:linenum:content" or "file:linenum:col:content"
-func filterSLS(raw string) string {
+func FilterSLS(raw string) string {
 	lines := strings.Split(strings.TrimRight(raw, "\r\n"), "\n")
 	if len(lines) == 0 {
 		return "(no matches)\n"
@@ -144,4 +144,20 @@ func dropFilePrefix(line string) string {
 		return line
 	}
 	return line[idx+1:]
+}
+
+// SLSResult runs Select-String and returns compressed output.
+func SLSResult(pattern, path string, extraFlags []string) (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	args := []string{pattern, path}
+	args = append(args, extraFlags...)
+	psArgs := buildSlsArgs(args)
+	cmdlet := fmt.Sprintf("Select-String %s", psArgs)
+	raw, err := powershell.InvokePwshText(cmdlet)
+	if err != nil || strings.TrimSpace(raw) == "" {
+		return "(no matches)\n", nil
+	}
+	return FilterSLS(raw), nil
 }

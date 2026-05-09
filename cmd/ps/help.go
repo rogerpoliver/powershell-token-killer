@@ -49,9 +49,9 @@ func runHelp(args []string) error {
 
 	var compressed string
 	if showExamples {
-		compressed = extractSynopsisAndExamples(raw, 2)
+		compressed = ExtractSynopsisAndExamples(raw, 2)
 	} else {
-		compressed = extractSynopsis(raw)
+		compressed = ExtractSynopsis(raw)
 	}
 
 	fmt.Print(compressed)
@@ -62,9 +62,9 @@ func runHelp(args []string) error {
 	return nil
 }
 
-// extractSynopsis pulls only the SYNOPSIS or first SYNTAX block from Get-Help output.
+// ExtractSynopsis pulls only the SYNOPSIS or first SYNTAX block from Get-Help output.
 // Drops DESCRIPTION, PARAMETERS, NOTES, RELATED LINKS — typically 95% token savings.
-func extractSynopsis(raw string) string {
+func ExtractSynopsis(raw string) string {
 	lines := strings.Split(raw, "\n")
 	var sb strings.Builder
 	inSynopsis := false
@@ -121,8 +121,8 @@ func extractSynopsis(raw string) string {
 	return result + "\n"
 }
 
-func extractSynopsisAndExamples(raw string, maxExamples int) string {
-	synopsis := extractSynopsis(raw)
+func ExtractSynopsisAndExamples(raw string, maxExamples int) string {
+	synopsis := ExtractSynopsis(raw)
 
 	lines := strings.Split(raw, "\n")
 	var examples strings.Builder
@@ -167,4 +167,22 @@ func isSection(upper string) bool {
 		}
 	}
 	return false
+}
+
+// HelpResult runs Get-Help and returns compressed output.
+func HelpResult(target string, examples bool) (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	if target == "" {
+		return "Usage: ptk phelp <cmdlet>\n", nil
+	}
+	raw, err := powershell.InvokePwshText(fmt.Sprintf("Get-Help %s", target))
+	if err != nil || strings.TrimSpace(raw) == "" {
+		return fmt.Sprintf("(no help found for %s)\n", target), nil
+	}
+	if examples {
+		return ExtractSynopsisAndExamples(raw, 2), nil
+	}
+	return ExtractSynopsis(raw), nil
 }

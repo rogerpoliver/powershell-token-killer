@@ -233,3 +233,28 @@ func topExts(extCount map[string]int, n int) []string {
 	return result
 }
 
+// GCIResult runs Get-ChildItem and returns compressed output for the given path.
+func GCIResult(path string, showAll bool) (string, error) {
+	if !powershell.Available() {
+		return "", fmt.Errorf("PowerShell not available")
+	}
+	cmdlet := fmt.Sprintf("Get-ChildItem -Path %s", quotePath(path))
+	if showAll {
+		cmdlet += " -Force"
+	}
+	raw, err := powershell.InvokePwshJSON(cmdlet + " | Select-Object Name,Length,Attributes")
+	if err != nil {
+		rawText, _ := powershell.InvokePwshText("Get-ChildItem -Path " + quotePath(path))
+		return rawText, nil
+	}
+	entries, err := parseGCIJSON(string(raw))
+	if err != nil || len(entries) == 0 {
+		rawText, _ := powershell.InvokePwshText("Get-ChildItem -Path " + quotePath(path))
+		if rawText == "" {
+			return "(empty)\n", nil
+		}
+		return rawText, nil
+	}
+	return formatGCI(entries, showAll), nil
+}
+
