@@ -1,5 +1,8 @@
 # PTK — PowerShell Token Killer
 
+> [!WARNING]
+> **This is a proof of concept.** PTK is being actively tested and validated — nothing here guarantees this becomes a production-ready tool. If the idea resonates with you, leave a ⭐ and check back in a few days.
+
 > Reduce LLM token consumption by 60–90% when working in Windows/PowerShell environments with AI coding agents.
 
 PTK is a Go CLI that sits between your AI agent and PowerShell, compressing verbose cmdlet output before it reaches the context window. Built for legacy Windows projects that depend exclusively on PowerShell and cannot run bash, Unix tools, or Node-based proxies.
