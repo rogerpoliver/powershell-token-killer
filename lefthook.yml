@@ -7,6 +7,15 @@ pre-commit:
     test:
       run: go test ./...
 
+pre-push:
+  commands:
+    build:
+      run: go build ./...
+    vet:
+      run: go vet ./...
+    test:
+      run: go test ./...
+
 commit-msg:
   commands:
     conventional-commits:
