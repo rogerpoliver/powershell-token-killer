@@ -18,8 +18,9 @@ func TestRewrite(t *testing.T) {
 		{"Get-Process", "ptk gps", true},
 		{"Get-Service", "ptk gsv", true},
 		{"Measure-Object", "ptk measure", true},
-		{"Get-Content", "ptk gc", true},
 		{"Get-History", "ptk history", true},
+		// No PTK filter for Get-Content or Get-WinEvent — passthrough
+		{"Get-Content", "", false},
 		{"Get-Help", "ptk phelp", true},
 		// No PTK equivalent
 		{"git status", "", false},

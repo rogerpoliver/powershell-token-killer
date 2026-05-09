@@ -10,10 +10,8 @@ var cmdletToPTK = map[string]string{
 	"Get-Process":    "ptk gps",
 	"Get-Service":    "ptk gsv",
 	"Measure-Object": "ptk measure",
-	"Get-Content":    "ptk gc",
 	"Get-History":    "ptk history",
 	"Get-Help":       "ptk phelp",
-	"Get-WinEvent":   "ptk winevent",
 }
 
 // Rewrite maps a normalized cmdlet command to its ptk equivalent.

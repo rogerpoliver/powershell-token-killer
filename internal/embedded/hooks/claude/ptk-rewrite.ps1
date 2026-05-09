@@ -35,13 +35,12 @@ switch ($exitCode) {
     0 {
         # Rewrite found, no permission rules matched — safe to auto-allow
         if ($cmd -eq $rewritten) { exit 0 }  # already ptk, no-op
-        $data.tool_input.command = $rewritten
         @{
             hookSpecificOutput = @{
-                hookEventName            = "PreToolUse"
-                permissionDecision       = "allow"
+                hookEventName         = "PreToolUse"
+                permissionDecision    = "allow"
                 permissionDecisionReason = "PTK auto-rewrite"
-                updatedInput             = $data.tool_input
+                updatedInput          = @{ command = $rewritten }
             }
         } | ConvertTo-Json -Depth 5 -Compress
     }
@@ -55,11 +54,10 @@ switch ($exitCode) {
     }
     3 {
         # Ask rule matched — rewrite but do NOT auto-allow (user confirms)
-        $data.tool_input.command = $rewritten
         @{
             hookSpecificOutput = @{
                 hookEventName = "PreToolUse"
-                updatedInput  = $data.tool_input
+                updatedInput  = @{ command = $rewritten }
             }
         } | ConvertTo-Json -Depth 5 -Compress
     }

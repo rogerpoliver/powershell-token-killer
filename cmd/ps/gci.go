@@ -3,7 +3,6 @@ package ps
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -234,5 +233,3 @@ func topExts(extCount map[string]int, n int) []string {
 	return result
 }
 
-// Ensure os is used (for fallback path)
-var _ = os.Stdout

@@ -29,7 +29,6 @@ var aliasMap = map[string]string{
 	"wc":      "Measure-Object",
 	// History
 	"history": "Get-History",
-	"h":       "Get-History",
 	"ghy":     "Get-History",
 	// Help
 	"man":     "Get-Help",
