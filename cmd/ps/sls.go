@@ -104,6 +104,10 @@ func filterSLS(raw string) string {
 		sb.WriteByte('\n')
 	}
 
+	if matchCount == 0 {
+		return "(no matches)\n"
+	}
+
 	// Summary when many matches
 	if matchCount > 5 {
 		sb.WriteString(fmt.Sprintf("\nFound %d matches\n", matchCount))
