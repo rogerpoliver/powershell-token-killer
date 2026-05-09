@@ -198,3 +198,24 @@ docs: update AGENTS.md with new filter guide
 ```
 
 Types: `feat fix docs style refactor perf test build ci chore revert`
+
+Subject must be **lower-case**. Validated by `commit-msg` hook and CI.
+
+## Git Hooks
+
+Install before committing:
+
+```bash
+mise run hooks   # or: sh scripts/install-hooks.sh
+```
+
+`pre-commit` — runs `go build ./... && go vet ./... && go test ./...`. Commit is blocked if any fails.
+
+`commit-msg` — runs commitlint. Blocks commits that don't follow conventional commits format.
+
+## No AI Co-Authors
+
+**Never add Co-Authored-By, co-authored-by, or any AI attribution to commits.**
+
+This applies to all AI tools: Claude, Copilot, Kiro, Gemini, OpenCode, or any other.
+Commits must be clean — no AI signatures in the git history.

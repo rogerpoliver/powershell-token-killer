@@ -1,6 +1,10 @@
 [tools]
 go = "1.26.2"
 
+[tasks.hooks]
+description = "Install git pre-commit and commit-msg hooks from scripts/"
+run = "sh scripts/install-hooks.sh"
+
 [tasks.build]
 description = "Build ptk binary"
 run = "go build -o ptk ."

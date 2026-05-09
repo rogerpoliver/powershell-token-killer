@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# Pre-commit hook: build + vet + test
+set -e
+
+echo "[ptk] go build..."
+go build ./... || { echo "[ptk] build failed"; exit 1; }
+
+echo "[ptk] go vet..."
+go vet ./... || { echo "[ptk] vet failed"; exit 1; }
+
+echo "[ptk] go test..."
+go test ./... || { echo "[ptk] tests failed"; exit 1; }
+
+echo "[ptk] ok"
