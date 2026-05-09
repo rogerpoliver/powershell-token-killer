@@ -206,12 +206,12 @@ Subject must be **lower-case**. Validated by `commit-msg` hook and CI.
 Install before committing:
 
 ```bash
-mise run hooks   # or: sh scripts/install-hooks.sh
+mise run hooks   # or: lefthook install
 ```
 
-`pre-commit` — runs `go build ./... && go vet ./... && go test ./...`. Commit is blocked if any fails.
+`pre-commit` — runs `go build ./...`, `go vet ./...`, `go test ./...`. Commit blocked if any fails.
 
-`commit-msg` — runs commitlint. Blocks commits that don't follow conventional commits format.
+`commit-msg` — validates conventional commit format (pure shell, no npm needed). Blocks non-conforming messages.
 
 ## No AI Co-Authors
 

@@ -1,9 +1,10 @@
 [tools]
 go = "1.26.2"
+lefthook = "latest"
 
 [tasks.hooks]
-description = "Install git pre-commit and commit-msg hooks from scripts/"
-run = "sh scripts/install-hooks.sh"
+description = "Install lefthook git hooks (pre-commit + commit-msg)"
+run = "lefthook install"
 
 [tasks.build]
 description = "Build ptk binary"

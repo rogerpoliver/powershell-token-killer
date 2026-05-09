@@ -1,0 +1,13 @@
+pre-commit:
+  commands:
+    build:
+      run: go build ./...
+    vet:
+      run: go vet ./...
+    test:
+      run: go test ./...
+
+commit-msg:
+  commands:
+    conventional-commits:
+      run: sh scripts/validate-commit-msg.sh {1}
